@@ -29,6 +29,8 @@ const config = {
 
 let player;
 let cursors;
+let healthText;
+let whiteLine;
 
 let game = new Phaser.Game(config);
 
@@ -39,9 +41,6 @@ function preload() {
 }
 
 function create() { 
-    // todo: make these lines show up
-  // var line1 = new Phaser.Curves.Line([ 0, 100, 200, 200, '0xff0000' ]);
-  // var line2 = new Phaser.Curves.Line([ 0, 200, 300, 300, '0xff0000' ]);
   this.add.image(0, 0, 'bg').setOrigin(0);
 
   var block = this.physics.add.image(400, 300, 'block').setImmovable(true).setName('big');
@@ -58,9 +57,33 @@ function create() {
   });
 
   cursors = this.input.keyboard.createCursorKeys();
+  healthText = this.add.text(10, 10, `Health: ${store.getState().health}`, { font: '16px Courier', fill: '#ffffff' });
+
+  whiteLine = this.add.graphics();
+  whiteLine.lineStyle(8, 0xfffeee, 1);
+
+  const x = 100;
+  const y = 100;
+  const width = 600;
+  const radius = 32;
+
+  const tl = radius;
+  const tr = radius;
+
+  whiteLine.moveTo(x + tl, y);
+  whiteLine.lineTo(x + width - tr, y);
+  whiteLine.strokePath();
+  this.physics.add.collider(player, whiteLine, () => {
+    console.log('Colling with white line');
+    store.dispatch(collide('whiteLine'));
+  });
 }
 
 function update(time) {
+  const {
+    health,
+  } = store.getState();
+
   player.setVelocity(0);
 
   if (cursors.left.isDown) {
@@ -73,5 +96,10 @@ function update(time) {
     player.setVelocityY(-200);
   } else if (cursors.down.isDown) {
     player.setVelocityY(200);
+  }
+  console.log(store.getState());
+  healthText.setText(`Health: ${health}`);
+  if (health < 1) {
+    console.log('Game over!');
   }
 }

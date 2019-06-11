@@ -3,7 +3,7 @@ const initialState = {
   collisions: {
     mainBlock: false,
   },
-  health: 0,
+  health: 100,
 };
 
 export default function ui(state = initialState, action) {
