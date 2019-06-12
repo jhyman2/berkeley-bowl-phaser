@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import logoImg from "./assets/logo.jpg";
-import shoppingCartImg from './assets/shopping_cart.png';
+// import shoppingCartImg from './assets/shopping_cart.png';
+import shoppingCartImg from './assets/man_shopping_cart.png';
 import blockImg from './assets/block.jpeg';
 import steelboxImg from './assets/steelbox.png';
 import bgImg from './assets/background.png';
@@ -17,7 +18,8 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: true,
+            gravity: { y: 0 }
         }
     },
     scene: {
@@ -49,6 +51,9 @@ function create() {
   // block.body.setCheckCollisionUp(false);
 
   player = this.physics.add.image(100, 300, 'shoppingCart').setName('small');
+  player.setDamping(true);
+  player.setDrag(0.99);
+  player.setMaxVelocity(200);
 
   // this.physics.add.collider(block, player);
 
@@ -84,19 +89,24 @@ function update(time) {
     health,
   } = store.getState();
 
-  player.setVelocity(0);
+  if (cursors.up.isDown) {
+    this.physics.velocityFromRotation(player.rotation, 200, player.body.acceleration);
+  }
+  else {
+    player.setAcceleration(0);
+  }
 
   if (cursors.left.isDown) {
-    player.setVelocityX(-200);
-  } else if (cursors.right.isDown) {
-    player.setVelocityX(200);
+    player.setAngularVelocity(-200);
   }
+  else if (cursors.right.isDown) {
+    player.setAngularVelocity(200);
+  }
+  else {
+    player.setAngularVelocity(0);
+  }
+  this.physics.world.wrap(player, 32);
 
-  if (cursors.up.isDown) {
-    player.setVelocityY(-200);
-  } else if (cursors.down.isDown) {
-    player.setVelocityY(200);
-  }
   console.log(store.getState());
   healthText.setText(`Health: ${health}`);
   if (health < 1) {
